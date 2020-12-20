@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 
 module.exports = (db) => {
-    app.get('/', (req, res) => {
+    app.get('/health', (req, res) => {
         res.status(200).json({
             code: 1, message: "ok", data: null
         })
