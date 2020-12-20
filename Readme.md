@@ -144,4 +144,4 @@ the installation tutorial in this documentation is only on windows
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Alfi Salim** - *Initial work* - [alfisalim](https://github.com/alfisalim)
