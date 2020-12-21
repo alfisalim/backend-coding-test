@@ -39,4 +39,15 @@ describe('API tests', () => {
                 .expect(200, done);
         });
     });
+
+    describe('GET /rides', () => {
+
+        it('should return ok', (done) => {
+            request(app)
+                .get('/rides')
+                .expect('Content-Type', /json/)
+                .expect(200, done);
+        });
+    });
+
 });

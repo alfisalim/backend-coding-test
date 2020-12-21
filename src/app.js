@@ -100,7 +100,18 @@ module.exports = (db) => {
     });
 
     app.get('/rides', (req, res) => {
-        db.all('SELECT * FROM Rides', function (err, rows) {
+        var numRows;
+        var numPages;
+        var queryPagination;
+
+        var numPerPage = 5;
+        var page = parseInt(req.query.page, 10) || 0;
+        var skip = page * numPerPage;
+
+        // Here we compute the LIMIT parameter for MySQL query
+        var limit = skip + ' , ' + numPerPage;
+
+        db.all('SELECT COUNT(*) AS numRows FROM Rides', function (err, rows) {
             if (err) {
                 return res.status(400).json({
                     code: 0,
@@ -119,7 +130,26 @@ module.exports = (db) => {
                 logger.error("Something error");
             }
 
-            res.send(rows);
+            numRows = rows[0].numRows;
+            numPages = Math.ceil(numRows / numPerPage);
+        });
+
+        db.all('SELECT * FROM Rides ORDER BY rideID DESC LIMIT ' + limit, function (err, rows) {
+            var responsePayload = {
+                results: rows
+            };
+            
+            if (page < numPages) {
+                responsePayload.pagination = {
+                    currentPage: page,
+                    perPage: numPerPage,
+                };
+            }
+            else responsePayload.pagination = {
+                err: 'queried page ' + page + ' is >= to maximum page number ' + numPages
+            };
+
+            res.send(responsePayload);
             logger.info("Successfully");
         });
     });
