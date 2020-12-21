@@ -7,6 +7,7 @@ This project is a requirement to become a Backend Developer at Kanggo. The Goal 
 * [Installation](#installation)
 * [Usage](#usage)
 * [Service](#service)
+* [Changelog](#changelog)
 * [Authors](#Authors)
 
 ### Installation
@@ -69,45 +70,57 @@ the installation tutorial in this documentation is only on windows
 		```
 		##### Visit [Service](#service) part for detail about request body in this service.
 
-	- for access service get riders data, using command `curl -X GET localhost:8010/rides`
+	- for access service get riders data, using command `curl -X GET localhost:8010/rides`. this service have pagination features, for use the pagination, using command `curl -X GET localhost:8010/rides?page=`. the pagination will show 5 data per page.
+
+		for example :
+		```
+		curl -X GET localhost:8010/rides?page1
+		```
+
 
 		The Response is :
 		```
-		[
-			{
-				"rideID":1,
-				"startLat":7.123923,
-				"startLong":23.23948,
-				"endLat":50.34508,
-				"endLong":67.23423,
-				"riderName":"Alfi Salim",
-				"driverName":"Alfi",
-				"driverVehicle":"bike",
-				"created":"2020-12-20 06:53:49"
-			},
-			{
-				"rideID":2,
-				"startLat":7.123923,
-				"startLong":23.23948,
-				"endLat":50.34508,
-				"endLong":67.23423,
-				"riderName":"Alfi Salim",
-				"driverName":"Alfi",
-				"driverVehicle":"bike",
-				"created":"2020-12-20 10:11:38"
-			},
-			{
-				"rideID":3,
-				"startLat":7.123923,
-				"startLong":23.23948,
-				"endLat":50.34508,
-				"endLong":67.23423,
-				"riderName":"Alfi Salim",
-				"driverName":"Alfi",
-				"driverVehicle":"bike",
-				"created":"2020-12-20 10:31:28"
-			}
-		]
+		{
+		    "results": [
+		        {
+		            "rideID": 3,
+		            "startLat": 18.123923,
+		            "startLong": 8.23948,
+		            "endLat": 74.34508,
+		            "endLong": 56.23423,
+		            "riderName": "Rizaldy Fathoni",
+		            "driverName": "Rizaldy",
+		            "driverVehicle": "Car",
+		            "created": "2020-12-21 04:17:59"
+		        },
+		        {
+		            "rideID": 2,
+		            "startLat": 18.123923,
+		            "startLong": 8.23948,
+		            "endLat": 74.34508,
+		            "endLong": 56.23423,
+		            "riderName": "Rizaldy Fathoni",
+		            "driverName": "Rizaldy",
+		            "driverVehicle": "Car",
+		            "created": "2020-12-21 04:17:59"
+		        },
+		        {
+		            "rideID": 1,
+		            "startLat": 18.123923,
+		            "startLong": 8.23948,
+		            "endLat": 74.34508,
+		            "endLong": 56.23423,
+		            "riderName": "Rizaldy Fathoni",
+		            "driverName": "Rizaldy",
+		            "driverVehicle": "Car",
+		            "created": "2020-12-21 04:17:58"
+		        }
+		    ],
+		    "pagination": {
+		        "currentPage": 1,
+		        "perPage": 5
+		    }
+		}
 		```
 
 	- for access service get certain riders data, using command `curl -X GET localhost:8010/rides:<id>` <br />
@@ -140,6 +153,19 @@ the installation tutorial in this documentation is only on windows
 | /rides | POST | * start_lat (required, numeric between -75 to 75 degree) <br /> * start_long (required, numeric between -195 to 195 degree) <br /> * end_lat (required, numeric between -75 to 75 degree) <br /> * end_long (required, numeric between -195 to 195 degree) <br /> * rider_name (required, string) <br /> * driver_name (required, string) <br /> * driver_vehicle (required, string) <br /> | - | Insert new data into table Riders  |
 | /health | GET | - | - | Get some information that indicate the server was running successfully  |
 | /health | GET | - | - | Get some information that indicate the server was running successfully  |
+
+
+### Changelog
+~ 21 December 2020
+
+- Add Service
+	- test /rides
+
+- Update Service
+	- service GET /rides -> add feature pagination
+
+- Fix Service
+	- 
 
 
 ## Authors
