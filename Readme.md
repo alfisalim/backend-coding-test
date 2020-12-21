@@ -165,7 +165,7 @@ the installation tutorial in this documentation is only on windows
 	- service GET /rides -> add feature pagination
 
 - Fix Service
-	- 
+	- nothing
 
 
 ## Authors
