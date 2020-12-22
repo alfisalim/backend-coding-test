@@ -166,7 +166,7 @@ the installation tutorial in this documentation is only on windows
 	- remoce service GET /rides/:id -> merge to service GET /rides
 
 - Fix Service
-	- 
+	- nothing
 
 
 ~ 21 December 2020
