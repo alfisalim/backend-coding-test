@@ -13,6 +13,10 @@ const logger = winston.createLogger({
     ]
 });
 
+function log_error(message) {
+    return logger.error(message);
+};
+
 module.exports = (db) => {
     app.get('/health', (req, res) => {
         res.status(200).json({
@@ -21,120 +25,144 @@ module.exports = (db) => {
         logger.info("Successfully");
     });
 
-    app.post('/rides', jsonParser, (req, res) => {
+    app.post('/rides', jsonParser, async (req, res) => {
+        var lastID;
         const {start_lat, start_long, end_lat, end_long, rider_name,driver_name, driver_vehicle} = req.body;
 
         if (Number(start_lat) < -75 || Number(start_lat) > 75 || Number(start_long) < -195 || Number(start_long) > 195) {
+            var message = "Start latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively";
+            log_error(message);
             return res.status(400).json({
                 code: 0,
-                message: 'Start latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively',
+                message: message,
                 data: null
             });
-            logger.error("Start latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively");
         }
 
         if (Number(end_lat) < -75 || Number(end_lat) > 75 || Number(end_long) < -195 || Number(end_long) > 195) {
+            var message = 'End latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively';
+            log_error(message);
             return res.status(400).json({
                 code: 0,
-                message: 'End latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively',
+                message: message,
                 data: null
             });
-            logger.error("End latitude and longitude must be between -75 to 75 and -195 to 195 degrees respectively");
         }
 
         if (typeof rider_name !== 'string' || rider_name.length < 1) {
+            var message = 'Rider name must be a non empty string';
+            log_error(message);
             return res.status(400).json({
                 code: 0,
-                message: 'Rider name must be a non empty string',
+                message: message,
                 data: null
             });
-            logger.error("Rider name must be a non empty string");
         }
 
         if (typeof driver_name !== 'string' || driver_name.length < 1) {
+            var message = 'driver name must be a non empty string';
+            log_error(message);
             return res.status(400).json({
                 code: 0,
-                message: 'driver name must be a non empty string',
+                message: message,
                 data: null
             });
-            logger.error("driver name must be a non empty string");
         }
 
         if (typeof driver_vehicle !== 'string' || driver_vehicle.length < 1) {
+            var message = 'driver vehicle must be a non empty string';
+            log_error(message);
             return res.status(400).json({
                 code: 0,
-                message: 'driver vehicle must be a non empty string',
+                message: message,
                 data: null
             });
-            logger.error("driver vehicle must be a non empty string");
         }
 
         const values = [start_lat, start_long, end_lat, end_long, rider_name, driver_name, driver_vehicle];
         const query = `INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) 
                        VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-        const result = db.run(query, values, function (err) {
+        const result = await db.run(query, values, function (err, rows) {
             if (err) {
+                var message = 'Unknown error';
+                log_error(message);
                 return res.status(400).json({
                     code: 0,
-                    message: 'Unknown error',
+                    message: message,
                     data: null
                 });
-                logger.error("Something error");
+            }
+        });
+
+        const show = await db.all('SELECT * FROM Rides ORDER BY rideID DESC LIMIT 1', function (err, rows) {
+            if (err) {
+                var message = 'Unknown error';
+                log_error(message);
+                return res.status(400).json({
+                    code: 0,
+                    message: message,
+                    data: null
+                });
             }
 
-            db.all('SELECT * FROM Rides WHERE rideID = ?', this.lastID, function (err, rows) {
-                if (err) {
-                    return res.status(400).json({
-                        code: 0,
-                        message: 'Unknown error',
-                        data: null
-                    });
-                    logger.error("Something error");
-                }
-
-                res.send(rows);
-                logger.info("Successfully");
-            });
+            res.send(rows);
+            logger.info("Successfully");
         });
+
     });
 
-    app.get('/rides', (req, res) => {
+    app.get('/rides', async (req, res) => {
         var numRows;
         var numPages;
         var queryPagination;
+        var idParam;
+        var values;
+        var query;
 
         var numPerPage = 5;
         var page = parseInt(req.query.page, 10) || 0;
         var skip = page * numPerPage;
+        var id = parseInt(req.query.id) || null;
 
         // Here we compute the LIMIT parameter for MySQL query
         var limit = skip + ' , ' + numPerPage;
 
-        db.all('SELECT COUNT(*) AS numRows FROM Rides', function (err, rows) {
+        var query = "SELECT * FROM Rides WHERE 1 = 1";
+
+        if (id != null) {
+            query += " AND rideID = ? ";
+            values = id;
+        } else {
+            query += " ORDER BY rideID DESC LIMIT " + limit;
+        }
+
+        const count = await db.all('SELECT COUNT(*) AS numRows FROM Rides', function (err, rows) {
             if (err) {
+                var message = 'Unknown error';
+                log_error(message);
                 return res.status(400).json({
                     code: 0,
-                    message: 'Unknown error',
+                    message: message,
                     data: null
                 });
-                logger.error("Something error");
             }
 
             if (rows.length === 0) {
+                var message = 'Could not find any rides';
+                log_error(message);
                 return res.status(400).json({
                     code: 0,
-                    message: 'Could not find any rides',
+                    message: message,
                     data: null
                 });
-                logger.error("Something error");
             }
 
             numRows = rows[0].numRows;
             numPages = Math.ceil(numRows / numPerPage);
         });
 
-        db.all('SELECT * FROM Rides ORDER BY rideID DESC LIMIT ' + limit, function (err, rows) {
+        const result = await db.all(query, values, function (err, rows) {
             var responsePayload = {
                 results: rows
             };
@@ -150,31 +178,6 @@ module.exports = (db) => {
             };
 
             res.send(responsePayload);
-            logger.info("Successfully");
-        });
-    });
-
-    app.get('/rides/:id', (req, res) => {
-        db.all(`SELECT * FROM Rides WHERE rideID='${req.params.id}'`, function (err, rows) {
-            if (err) {
-                return res.status(400).json({
-                    code: 0,
-                    message: 'Unknown error',
-                    data: null
-                });
-                logger.error("Something error");
-            }
-
-            if (rows.length === 0) {
-                return res.status(400).json({
-                    code: 0,
-                    message: 'Could not find any rides',
-                    data: null
-                });
-                logger.error("Something error");
-            }
-
-            res.send(rows);
             logger.info("Successfully");
         });
     });

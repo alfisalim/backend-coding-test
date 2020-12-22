@@ -74,7 +74,7 @@ the installation tutorial in this documentation is only on windows
 
 		for example :
 		```
-		curl -X GET localhost:8010/rides?page1
+		curl -X GET localhost:8010/rides?page=1
 		```
 
 
@@ -123,10 +123,10 @@ the installation tutorial in this documentation is only on windows
 		}
 		```
 
-	- for access service get certain riders data, using command `curl -X GET localhost:8010/rides:<id>` <br />
+	- for access service get certain riders data, using command `curl -X GET localhost:8010/rides?id=?` <br />
 		for example : 
 		```
-		curl -X GET localhost:8010/rides:1
+		curl -X GET localhost:8010/rides?id=1
 		```
 
 		The Response is :
@@ -156,6 +156,19 @@ the installation tutorial in this documentation is only on windows
 
 
 ### Changelog
+~ 22 December 2020
+
+- Add Service
+	- add features sync/await
+
+- Update Service
+	- service GET /rides -> add param rideId
+	- remoce service GET /rides/:id -> merge to service GET /rides
+
+- Fix Service
+	- 
+
+
 ~ 21 December 2020
 
 - Add Service
